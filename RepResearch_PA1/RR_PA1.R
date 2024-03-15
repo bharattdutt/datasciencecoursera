@@ -1,0 +1,115 @@
+unzip(zipfile="activity.zip")
+data <- read.csv("activity.csv")
+```
+```{r}
+# Calculate the sum of steps per day
+stepsPerDay <- activity %>%
+  group_by(date) %>%
+  summarize(sumsteps = sum(steps, na.rm = TRUE))
+
+# Display first 10 rows of data
+head(stepsPerDay, 10)
+
+# Plot histogram of daily steps
+hist(stepsPerDay$sumsteps, main = "Histogram of Daily Steps",
+     col = "blue", xlab = "Steps", ylim = c(0, 30))
+
+# Calculate mean and median steps per day
+meanPreNA <- round(mean(stepsPerDay$sumsteps), digits = 2)
+medianPreNA <- round(median(stepsPerDay$sumsteps), digits = 2)
+
+# Print mean and median
+print(paste("The mean is: ", meanPreNA))
+print(paste("The median is: ", medianPreNA))
+# Calculate the mean steps per 5-minute interval
+stepsPerInterval <- activity %>%
+  group_by(interval) %>%
+  summarize(meansteps = mean(steps, na.rm = TRUE))
+
+# Display first 10 rows of data
+head(stepsPerInterval, 10)
+
+# Plot the average number of steps by time interval
+plot(stepsPerInterval$meansteps ~ stepsPerInterval$interval,
+     col = "blue", type = "l", xlab = "5 Minute Intervals", ylab = "Average Number of Steps",
+     main = "Steps By Time Interval")
+
+# Find and print the interval containing the most steps on average
+max_interval <- stepsPerInterval$interval[which.max(stepsPerInterval$meansteps)]
+max_steps <- max(stepsPerInterval$meansteps)
+print(paste("Interval containing the most steps on average: ", max_interval))
+print(paste("Average steps for that interval: ", round(max_steps, digits = 2)))
+# Print total number of rows with NA values
+print(paste("The total number of rows with NA is: ", sum(is.na(activity$steps))))
+
+# Before NA Transformation
+# Display first 10 rows of data
+head(activity, 10)
+
+# Create a copy of the dataset
+activityNoNA <- activity
+
+# Impute missing values using mean steps per interval
+for (i in 1:nrow(activity)) {
+  if (is.na(activity$steps[i])) {
+    activityNoNA$steps[i] <- stepsPerInterval$meansteps[activityNoNA$interval[i] == stepsPerInterval$interval]
+  }
+}
+
+# After NA Transformation
+# Display first 10 rows of data after imputation
+head(activityNoNA, 10)
+
+# Calculate sum of steps per day
+stepsPerDay <- activityNoNA %>%
+  group_by(date) %>%
+  summarize(sumsteps = sum(steps, na.rm = TRUE))
+
+# Display first 10 rows of steps per day
+head(stepsPerDay, 10)
+
+# Plot histogram of daily steps
+hist(stepsPerDay$sumsteps, main = "Histogram of Daily Steps", col = "blue", xlab = "Steps")
+
+# Calculate mean and median after NA transformation
+meanPostNA <- round(mean(stepsPerDay$sumsteps), digits = 2)
+medianPostNA <- round(median(stepsPerDay$sumsteps), digits = 2)
+
+# Print mean and median after NA transformation
+print(paste("The mean is: ", meanPostNA))
+
+# Create a dataframe for comparison of mean and median
+NACompare <- data.frame(mean = c(meanPreNA, meanPostNA), median = c(medianPreNA, medianPostNA))
+rownames(NACompare) <- c("Pre NA Transformation", "Post NA Transformation")
+
+# Print comparison table
+print(NACompare)
+# Convert date column to Date format
+activityNoNA$date <- as.Date(activityNoNA$date)
+
+# Create a new factor variable indicating weekday or weekend
+activityNoNA$day <- ifelse(weekdays(activityNoNA$date) %in% c("Saturday", "Sunday"), "weekend", "weekday")
+activityNoNA$day <- as.factor(activityNoNA$day)
+
+# Filter data for weekday and weekend
+activityWeekday <- subset(activityNoNA, day == "weekday")
+activityWeekend <- subset(activityNoNA, day == "weekend")
+
+# Calculate average steps for each interval for weekday and weekend separately
+activityWeekday <- aggregate(steps ~ interval, data = activityWeekday, FUN = mean)
+activityWeekday$day <- "weekday"
+
+activityWeekend <- aggregate(steps ~ interval, data = activityWeekend, FUN = mean)
+activityWeekend$day <- "weekend"
+
+# Combine weekday and weekend data
+wkdayWkend <- rbind(activityWeekday, activityWeekend)
+wkdayWkend$day <- as.factor(wkdayWkend$day)
+
+# Plotting
+g <- ggplot(wkdayWkend, aes(interval, steps))
+g + geom_line() + facet_grid(day~.) +
+  theme(axis.text = element_text(size = 12), axis.title = element_text(size = 14)) +
+  labs(y = "Number of Steps", x = "Interval") +
+  ggtitle("Average Number of Steps - Weekday vs. Weekend") +
+  theme(plot.title = element_text(hjust = 0.5))
