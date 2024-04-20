@@ -1,0 +1,18 @@
+---
+title: "Weather Event Analysis"
+output: html_document
+date: "2024-04-14"
+---
+# Overview
+
+This R script analyzes weather event data to identify the top events with the greatest economic consequences and health impacts in the United States.
+
+## Data
+
+The analysis requires a dataset containing information on weather events, including variables such as event type (`EVTYPE`), property damage (`PROPDMG`), crop damage (`CROPDMG`), injuries (`INJURIES`), and fatalities (`FATALITIES`). The dataset should be in a CSV format and should include relevant columns for the analysis.
+
+## Economic Consequences
+
+The script aggregates property and crop damage data for each weather event type and identifies the top 10 events with the greatest economic consequences. It then creates a bar chart visualizing the cost of damage for each event type, highlighting both property and crop damage.
+
+
