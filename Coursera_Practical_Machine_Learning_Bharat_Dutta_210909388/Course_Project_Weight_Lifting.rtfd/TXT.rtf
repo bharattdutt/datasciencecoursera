@@ -1,0 +1,247 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2820
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue-Medium;\f1\fnil\fcharset0 HelveticaNeue-MediumItalic;\f2\fmodern\fcharset0 Courier;
+\f3\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red242\green242\blue242;\red255\green255\blue255;
+}
+{\*\expandedcolortbl;;\cssrgb\c20000\c20000\c20000;\cssrgb\c96078\c96078\c96078;\cssrgb\c100000\c100000\c100000;
+}
+{\info
+{\author Anyi Guo}}\margl1440\margr1440\vieww31900\viewh18980\viewkind0
+\deftab720
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs76 \cf2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Course Project - Build a machine learning model to predict how well weight lifting exercises is done\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\i\fs36 \cf2 BHARAT DUTTA
+\f0\i0 \
+
+\f1\i 11/09/2025
+\f0\i0 \
+\pard\pardeftab720\sa200\partightenfactor0
+
+\fs68 \cf2 Machine Learning Course Project - Build a machine learning model to predict how well weight lifting exercises is done\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\fs60 \cf2 Coursera course: Practical Machine Learning\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\fs48 \cf2 Load the data\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 library(readr)\
+training <- read_csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv")\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## Parsed with column specification:\
+## cols(\
+##   .default = col_double(),\
+##   X1 = col_integer(),\
+##   user_name = col_character(),\
+##   raw_timestamp_part_1 = col_integer(),\
+##   raw_timestamp_part_2 = col_integer(),\
+##   cvtd_timestamp = col_character(),\
+##   new_window = col_character(),\
+##   num_window = col_integer(),\
+##   total_accel_belt = col_integer(),\
+##   kurtosis_roll_belt = col_character(),\
+##   kurtosis_picth_belt = col_character(),\
+##   kurtosis_yaw_belt = col_character(),\
+##   skewness_roll_belt = col_character(),\
+##   skewness_roll_belt.1 = col_character(),\
+##   skewness_yaw_belt = col_character(),\
+##   max_picth_belt = col_integer(),\
+##   max_yaw_belt = col_character(),\
+##   min_pitch_belt = col_integer(),\
+##   min_yaw_belt = col_character(),\
+##   amplitude_pitch_belt = col_integer(),\
+##   amplitude_yaw_belt = col_character()\
+##   # ... with 46 more columns\
+## )\
+## See spec(...) for full column specifications.\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 testing <-read_csv("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv")\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## Parsed with column specification:\
+## cols(\
+##   .default = col_character(),\
+##   X1 = col_integer(),\
+##   raw_timestamp_part_1 = col_integer(),\
+##   raw_timestamp_part_2 = col_integer(),\
+##   num_window = col_integer(),\
+##   roll_belt = col_double(),\
+##   pitch_belt = col_double(),\
+##   yaw_belt = col_double(),\
+##   total_accel_belt = col_integer(),\
+##   gyros_belt_x = col_double(),\
+##   gyros_belt_y = col_double(),\
+##   gyros_belt_z = col_double(),\
+##   accel_belt_x = col_integer(),\
+##   accel_belt_y = col_integer(),\
+##   accel_belt_z = col_integer(),\
+##   magnet_belt_x = col_integer(),\
+##   magnet_belt_y = col_integer(),\
+##   magnet_belt_z = col_integer(),\
+##   roll_arm = col_double(),\
+##   pitch_arm = col_double(),\
+##   yaw_arm = col_double()\
+##   # ... with 37 more columns\
+## )\
+## See spec(...) for full column specifications.\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs48 \cf2 \cb1 Step 1: Clean data\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\fs36 \cf2 In training and testing set, remove columns which are all NA (since we cannot get any prediction value from them)\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 library(dplyr)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## \
+## Attaching package: 'dplyr'\
+## The following objects are masked from 'package:stats':\
+## \
+##     filter, lag\
+## The following objects are masked from 'package:base':\
+## \
+##     intersect, setdiff, setequal, union\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 # keep the same columns in training & testing set\
+testing<-testing[,colSums(is.na(testing))<nrow(testing)]\
+li<-c(colnames(testing)[1:59],"classe")\
+training<-training %>% select(li)\
+rm(li)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs36 \cf2 \cb1 Find columns which contain missing values\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 colnames(training)[colSums(is.na(training))>0]\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## [1] "magnet_dumbbell_z" "magnet_forearm_y"  "magnet_forearm_z"\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs36 \cf2 \cb1 Find how many NAs are in these columns\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 sum(is.na(training$magnet_dumbbell_z))\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## [1] 1\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 sum(is.na(training$magnet_forearm_y))\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## [1] 1\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 sum(is.na(training$magnet_forearm_z))\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## [1] 1\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs36 \cf2 \cb1 Find row index for the NA rows\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 which(is.na(training),arr.ind=TRUE)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ##       row col\
+## [1,] 5373  46\
+## [2,] 5373  58\
+## [3,] 5373  59\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f3\fs28 \cf2 \cb1 It seems that there is only one row in the training set that contains NA (row 5373). We can handle it in two ways: 1. Replace it with column mean 2. Drop this row\
+Considering the size of the training dataset, I\'92ll use #2 and drop this row, resulting in 19621 rows in the training set (previously 19622).\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 training<-training[-c(5373),]\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs36 \cf2 \cb1 Find out data type for each column, and only select numeric columns to build the model\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 numeric<-lapply(training,is.numeric)\
+# add a column for classe variable\
+numeric$classe<-TRUE\
+# remove non-numeric columns\
+numeric$X1<-FALSE\
+numeric$user_name<-FALSE\
+numeric$raw_timestamp_part_1<-FALSE\
+numeric$raw_timestamp_part_2<-FALSE\
+numeric$cvtd_timestamp<-FALSE\
+numeric$num_window<-FALSE\
+numericCol<-unlist(numeric)\
+training<-training[,numericCol]\
+testing<-testing[,numericCol]\
+colnames(testing)[53]<-"classe"\
+rm(numeric)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs48 \cf2 \cb1 Step 2: split the training set into a sub-training (70%) and testing(30%) set\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 library(caret)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## Loading required package: lattice\
+## Loading required package: ggplot2\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 set.seed(1)\
+inTrain<-createDataPartition(y=training$classe,p=0.7,list=FALSE)\
+training_sub<-training[inTrain,]\
+testing_sub<-training[-inTrain,]\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs48 \cf2 \cb1 Step 3: build model on the sub-training set\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 set.seed(1)\
+# model 1: SVM\
+#modFit1<-train(classe~.,method="svmRadial",data=training4)\
+# model 2: gbm\
+#modFit2<-train(classe~.,method="gbm",data=training4)\
+# model 3: random forest\
+#modFit3<-train(classe~.,method="rf",data=training4)\
+\
+# I've commented out these models here because knitting them to html takes too much time (> 5 hours). Conslusion is that among the three models, random forest has the best performance, so we're using random forest to continue with the prediction. \
+\
+# Use parallel implementation to increase performance of the random forest model (it was taking too much time before)\
+library(parallel)\
+library(doParallel)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## Loading required package: foreach\
+## Loading required package: iterators\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb3 cluster <-makeCluster(detectCores()-1)\
+registerDoParallel(cluster)\
+\
+# configure trainControl object\
+fitControl<-trainControl(method="cv",number=20,allowParallel = TRUE)\
+\
+# develop training model with fitControl\
+modFit<-train(classe~.,method="rf",data=training_sub,trControl=fitControl)\
+\
+# de-register parallel processing cluster\
+stopCluster(cluster)\
+registerDoSEQ()\
+\
+# create a confusion matrix for the model on the sub-testing set to see how accurate the prediction is\
+ConMatrix<-confusionMatrix(table(testing_sub$classe,predict(modFit,testing_sub)))\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs48 \cf2 \cb1 Step 4: Prediction\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 # predict\
+pred<-predict(modFit,testing)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\fs48 \cf2 \cb1 Step 5: (Optional) Check importance of features\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf2 \cb3 importance<-varImp(modFit,scale=FALSE)\
+plot(importance)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f3\fs28 \cf2 \cb1 {{\NeXTGraphic unknown.png \width26880 \height19200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\pardeftab720\sa200\partightenfactor0
+\cf2 \
+}
