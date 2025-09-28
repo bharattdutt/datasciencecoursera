@@ -1,0 +1,106 @@
+---
+title: "*Motor Trend* - Report (28/09/2025)"
+output: html_document
+---
+#Summary
+We are looking at a dataset of a collection of cars to explore the relationship between a set of variables defining the design and performance of the cars, and their miles per gallon (MPG) output. We are particularly interested in the following two questions:
+
+1. Is an automatic or manual transmission better for MPG?
+2. How can we quantify the MPG difference between automatic and manual transmissions?
+
+For this analysis, a simple regression model was applied, selecting the best fitting parameters for an approximate estimation of the outcome.
+
+#Data Preprocessing
+We load the data (the **mtcars** package in R) and the required libraries, and look at the variables
+
+```{r reading data, warning=FALSE}
+data(mtcars)
+library(ggplot2)
+str(mtcars)
+```
+
+We look at the data and the correlation values for some clarity. We can see that some variables will provide better estimations if they are converted to factors. So we perform the conversion.
+``` {r preprocessing, message=FALSE}
+correl <- cor(mtcars$mpg, mtcars[,-1])
+?mtcars
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$vs <- as.factor(mtcars$vs); levels(mtcars$vs) <- c("V-shaped", "Straight")
+mtcars$am <- as.factor(mtcars$am); levels(mtcars$am) <- c("Auto", "Manual")
+mtcars$gear <- as.factor(mtcars$gear)
+mtcars$carb <- as.factor(mtcars$carb)
+```
+
+#Exploratory Analysis
+We perform some exploratory analysis and draw some plots to understand realtions among the variables better. These plots are provided for reference in the appendix.
+
+```{r exploratory analysis,results="hide", fig.keep='none'}
+pairs(mpg ~ ., data = mtcars)
+plot(mtcars$am, mtcars$mpg)
+summary(mtcars)
+```
+
+#Data Analysis
+We perform a multivariate linear regression to fit the data.
+
+First, we make the model to evaluate the relationship between MPG and Transmission. We use a stepwise backwards selection to achieve the best fitting model for our data. 
+```{r model, results='hide'}
+set.seed(1234)
+model1 <- lm(mpg ~ ., data = mtcars)
+model2 <- lm(mpg ~ cyl + disp + hp + wt + vs + am, data = mtcars)
+best.model <- step(model1, direction = "backward")
+```
+```{r model2}
+summary(best.model)
+```
+
+Then, we quantify the relationship between MPG and Transmission type. The plot is included in the Appendix.
+```{r quantify, fig.keep='none'}
+plot(mtcars$am, mtcars$mpg, main = "MPG vs. Transmission Type", ylab = "MPG")
+t.test(mpg ~ am, data = mtcars)
+```
+We describe the relation between the 2 variables using a bocplot, and also calculate the t-value. The p-value is significant (> 0.5), and thus their relationship is relevant.
+
+#Results
+Using the data, we are able to answer our initial questions, and reach some final conclusions, which are -
+
+1. The best fitting multivariate regression model uses **cyl**, **hp**, **wt**, and **am** as the predictors for mpg. The model explains 84% of the variance in the data.
+2. We can conclude that mpg **decreases** with cyl(4, 6 and 8), hp and wt of model. Mpg **increases** for Manual transmission.
+3. The mpg is **higher** for manual transmission than for auto transmission. This behaviour is seen in the t-value as well as in the boxplot between the two variables (attached in the appendix).
+4. Some residual variation cannot be explained by the linear model, and we need higher order models to accurately describe the data. The small sample size also permits only limited accuracy.
+
+The appendix includes additional material for this report.
+
+---
+
+#Appendix
+##Exploratory Plots
+```{r appendix, echo = FALSE}
+pairs(mpg ~ ., data = mtcars, main = "MPG vs. Performance Parameters")   
+ggplot(mtcars, aes(cyl, mpg)) + geom_bar(stat = "Identity") + 
+  xlab("Number of Cylinders") + ylab("MPG") + ggtitle("MPG vs. No. of Cylinders") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggplot(mtcars, aes(am, mpg)) + geom_count(aes(color = ..n..)) + guides(color = 'legend') +
+  ylab("MPG") + ggtitle("MPG vs. Transmission Type") + xlab("Transmission") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+##MPG vs. Transmission Type - BoxPlot
+```{r, echo=FALSE}
+plot(mtcars$am, mtcars$mpg, main = "MPG vs. Transmission Type", ylab = "MPG")
+```
+
+##Residals and Diagnostics
+```{r, echo=FALSE}
+par(mfrow = c(2,2)); plot(best.model)
+```
+
+```{r}
+hatvalues <- round(hatvalues(best.model),3)
+dfbetas <- round(dfbetas(best.model),3)
+```
+This is the end of our analysis.
+
+---
+
+---
+###Regression Models - Project 1 (12-10-2019)

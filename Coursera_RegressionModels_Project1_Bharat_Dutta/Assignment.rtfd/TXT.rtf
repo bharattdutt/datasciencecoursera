@@ -1,0 +1,211 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2865
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue-MediumItalic;\f1\fnil\fcharset0 HelveticaNeue-Medium;\f2\fnil\fcharset0 HelveticaNeue;
+\f3\fnil\fcharset0 HelveticaNeue-Bold;\f4\fmodern\fcharset0 Courier;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red242\green242\blue242;\red255\green255\blue255;
+\red109\green109\blue109;}
+{\*\expandedcolortbl;;\cssrgb\c20000\c20000\c20000;\cssrgb\c96078\c96078\c96078;\cssrgb\c100000\c100000\c100000;
+\cssrgb\c50196\c50196\c50196;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid101\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\margl1440\margr1440\vieww19220\viewh18420\viewkind0
+\deftab720
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f0\i\fs76 \cf2 \expnd0\expndtw0\kerning0
+Motor Trend
+\f1\i0  - Report (28/09/2025)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\fs68 \cf2 Summary\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 We are looking at a dataset of a collection of cars to explore the relationship between a set of variables defining the design and performance of the cars, and their miles per gallon (MPG) output. We are particularly interested in the following two questions:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	1	}\expnd0\expndtw0\kerning0
+Is an automatic or manual transmission better for MPG?\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
+How can we quantify the MPG difference between automatic and manual transmissions?\
+\pard\pardeftab720\sa200\partightenfactor0
+\cf2 For this analysis, a simple regression model was applied, selecting the best fitting parameters for an approximate estimation of the outcome.\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs68 \cf2 Data Preprocessing\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 We load the data (the 
+\f3\b mtcars
+\f2\b0  package in R) and the required libraries, and look at the variables\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf2 \cb3 data(mtcars)\
+library(ggplot2)\
+str(mtcars)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## 'data.frame':    32 obs. of  11 variables:\
+##  $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...\
+##  $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...\
+##  $ disp: num  160 160 108 258 360 ...\
+##  $ hp  : num  110 110 93 110 175 105 245 62 95 123 ...\
+##  $ drat: num  3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 ...\
+##  $ wt  : num  2.62 2.88 2.32 3.21 3.44 ...\
+##  $ qsec: num  16.5 17 18.6 19.4 17 ...\
+##  $ vs  : num  0 0 1 1 0 1 0 1 1 1 ...\
+##  $ am  : num  1 1 1 0 0 0 0 0 0 0 ...\
+##  $ gear: num  4 4 4 3 3 3 3 4 4 4 ...\
+##  $ carb: num  4 4 1 1 2 1 4 2 2 4 ...\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 \cb1 We look at the data and the correlation values for some clarity. We can see that some variables will provide better estimations if they are converted to factors. So we perform the conversion.\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf2 \cb3 correl <- cor(mtcars$mpg, mtcars[,-1])\
+?mtcars\
+mtcars$cyl <- as.factor(mtcars$cyl)\
+mtcars$vs <- as.factor(mtcars$vs); levels(mtcars$vs) <- c("V-shaped", "Straight")\
+mtcars$am <- as.factor(mtcars$am); levels(mtcars$am) <- c("Auto", "Manual")\
+mtcars$gear <- as.factor(mtcars$gear)\
+mtcars$carb <- as.factor(mtcars$carb)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs68 \cf2 \cb1 Exploratory Analysis\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 We perform some exploratory analysis and draw some plots to understand realtions among the variables better. These plots are provided for reference in the appendix.\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf2 \cb3 pairs(mpg ~ ., data = mtcars)\
+plot(mtcars$am, mtcars$mpg)\
+summary(mtcars)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs68 \cf2 \cb1 Data Analysis\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 We perform a multivariate linear regression to fit the data.\
+First, we make the model to evaluate the relationship between MPG and Transmission. We use a stepwise backwards selection to achieve the best fitting model for our data.\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf2 \cb3 set.seed(1234)\
+model1 <- lm(mpg ~ ., data = mtcars)\
+model2 <- lm(mpg ~ cyl + disp + hp + wt + vs + am, data = mtcars)\
+best.model <- step(model1, direction = "backward")\
+summary(best.model)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## \
+## Call:\
+## lm(formula = mpg ~ cyl + hp + wt + am, data = mtcars)\
+## \
+## Residuals:\
+##     Min      1Q  Median      3Q     Max \
+## -3.9387 -1.2560 -0.4013  1.1253  5.0513 \
+## \
+## Coefficients:\
+##             Estimate Std. Error t value Pr(>|t|)    \
+## (Intercept) 33.70832    2.60489  12.940 7.73e-13 ***\
+## cyl6        -3.03134    1.40728  -2.154  0.04068 *  \
+## cyl8        -2.16368    2.28425  -0.947  0.35225    \
+## hp          -0.03211    0.01369  -2.345  0.02693 *  \
+## wt          -2.49683    0.88559  -2.819  0.00908 ** \
+## amManual     1.80921    1.39630   1.296  0.20646    \
+## ---\
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\
+## \
+## Residual standard error: 2.41 on 26 degrees of freedom\
+## Multiple R-squared:  0.8659, Adjusted R-squared:  0.8401 \
+## F-statistic: 33.57 on 5 and 26 DF,  p-value: 1.506e-10\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 \cb1 Then, we quantify the relationship between MPG and Transmission type. The plot is included in the Appendix.\
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf2 \cb3 plot(mtcars$am, mtcars$mpg, main = "MPG vs. Transmission Type", ylab = "MPG")\
+t.test(mpg ~ am, data = mtcars)\
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb4 ## \
+##  Welch Two Sample t-test\
+## \
+## data:  mpg by am\
+## t = -3.7671, df = 18.332, p-value = 0.001374\
+## alternative hypothesis: true difference in means is not equal to 0\
+## 95 percent confidence interval:\
+##  -11.280194  -3.209684\
+## sample estimates:\
+##   mean in group Auto mean in group Manual \
+##             17.14737             24.39231\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 \cb1 We describe the relation between the 2 variables using a bocplot, and also calculate the t-value. The p-value is significant (> 0.5), and thus their relationship is relevant.\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs68 \cf2 Results\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 Using the data, we are able to answer our initial questions, and reach some final conclusions, which are -\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls2\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	1	}\expnd0\expndtw0\kerning0
+The best fitting multivariate regression model uses 
+\f3\b cyl
+\f2\b0 , 
+\f3\b hp
+\f2\b0 , 
+\f3\b wt
+\f2\b0 , and 
+\f3\b am
+\f2\b0  as the predictors for mpg. The model explains 84% of the variance in the data.\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
+We can conclude that mpg 
+\f3\b decreases
+\f2\b0  with cyl(4, 6 and 8), hp and wt of model. Mpg 
+\f3\b increases
+\f2\b0  for Manual transmission.\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 {\listtext	3	}\expnd0\expndtw0\kerning0
+The mpg is 
+\f3\b higher
+\f2\b0  for manual transmission than for auto transmission. This behaviour is seen in the t-value as well as in the boxplot between the two variables (attached in the appendix).\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 {\listtext	4	}\expnd0\expndtw0\kerning0
+Some residual variation cannot be explained by the linear model, and we need higher order models to accurately describe the data. The small sample size also permits only limited accuracy.\
+\pard\pardeftab720\sa200\partightenfactor0
+\cf2 The appendix includes additional material for this report.\
+\pard\pardeftab720\partightenfactor0
+\cf5 \
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs68 \cf2 Appendix\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\fs60 \cf2 Exploratory Plots\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 {{\NeXTGraphic unknown.png \width10080 \height7200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\pardeftab720\sa200\partightenfactor0
+\cf2 {{\NeXTGraphic 1__#$!@%!#__unknown.png \width10080 \height7200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\pardeftab720\sa200\partightenfactor0
+\cf2 {{\NeXTGraphic 2__#$!@%!#__unknown.png \width10080 \height7200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\pardeftab720\sa200\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs60 \cf2 MPG vs.\'a0Transmission Type - BoxPlot\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 {{\NeXTGraphic 3__#$!@%!#__unknown.png \width10080 \height7200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\pardeftab720\sa200\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f1\fs60 \cf2 Residals and Diagnostics\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 {{\NeXTGraphic 4__#$!@%!#__unknown.png \width10080 \height7200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\pard\pardeftab720\sa200\partightenfactor0
+\cf2 \
+\pard\pardeftab720\partightenfactor0
+
+\f4\fs26 \cf2 \cb3 hatvalues <- round(hatvalues(best.model),3)\
+dfbetas <- round(dfbetas(best.model),3)\
+\pard\pardeftab720\sa200\partightenfactor0
+
+\f2\fs28 \cf2 \cb1 This is the end of our analysis.
+\f1\fs48 \
+}
